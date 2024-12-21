@@ -1,9 +1,9 @@
 from wsgiref.simple_server import make_server
 from urllib.parse import parse_qs
 from html import escape
-from hashlib import sha256
 from expiringdict import ExpiringDict
 from http.cookies import _unquote as unquote
+from random import choice
 
 
 def set_cookie_header(name, value):
@@ -12,7 +12,12 @@ def set_cookie_header(name, value):
 
 AllPeopleSession: ExpiringDict = ExpiringDict(
     max_len=200, max_age_seconds=21600)
-nbSessionPeople: int = 1
+
+
+def getHexString() -> str:
+    while True:
+        if not AllPeopleSession.get(i := ''.join([choice('0123456789abcdef') for _ in range(32)])):
+            return i
 
 
 def application(environ, start_response):
@@ -46,14 +51,13 @@ def application(environ, start_response):
             else:
                 key, val = "", chunk
             key, val = key.strip(), val.strip()
-            if key or val: # valid Cookie
+            if key or val:  # valid Cookie
                 Cookies[key] = unquote(val)
 
     # SESSION dict
     if True:
         if not Cookies.get("session"):
-            Cookies['session'] = sha256(
-                bytes(str(nbSessionPeople), "utf-8")).hexdigest()
+            Cookies['session'] = getHexString()
             nbSessionPeople += 1
         if not AllPeopleSession.get(Cookies["session"], None):
             AllPeopleSession[Cookies["session"]] = {}
