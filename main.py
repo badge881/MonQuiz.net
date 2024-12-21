@@ -3,6 +3,7 @@ from urllib.parse import parse_qs
 from html import escape
 from hashlib import sha256
 from expiringdict import ExpiringDict
+from http.cookies import _unquote as unquote
 
 
 def set_cookie_header(name, value):
@@ -39,15 +40,18 @@ def application(environ, start_response):
 
     # COOKIES dict
     if True:
-        cookie_header: str = environ.get('HTTP_COOKIE', '')
-        if cookie_header:
-            for cookie in cookie_header.split(';'):
-                key, value = cookie.strip().split('=', 1)
-                Cookies[key] = value
+        for chunk in environ.get("HTTP_COOKIE", "").split(";"):
+            if "=" in chunk:
+                key, val = chunk.split("=", 1)
+            else:
+                key, val = "", chunk
+            key, val = key.strip(), val.strip()
+            if key or val: # valid Cookie
+                Cookies[key] = unquote(val)
 
     # SESSION dict
     if True:
-        if not Cookies.get("session", ""):
+        if not Cookies.get("session"):
             Cookies['session'] = sha256(
                 bytes(str(nbSessionPeople), "utf-8")).hexdigest()
             nbSessionPeople += 1
