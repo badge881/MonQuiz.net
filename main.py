@@ -67,9 +67,21 @@ class Handler:
         self.POST = post
         self.COOKIES = cookies
         self.SESSION = session
+        self.Paths = {
+            '/': self.main,
+        }
 
     def __call__(self, path: str):
-        pass
+        if path in self.Paths:
+            return self.Paths[path]()
+        else:
+            return self.NotFound()
+
+    def main(self):
+        return ('200 OK', [('Content-type', 'text/plain')], b'Hello World')
+
+    def NotFound(self):
+        return ('404 Not Found', [('Content-type', 'text/plain')], b'Not Found')
 
 
 if __name__ == "__main__":
