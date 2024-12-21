@@ -4,10 +4,10 @@ from html import escape
 from expiringdict import ExpiringDict
 from http.cookies import _unquote as unquote
 from random import choice
-from private import *
+from private import *  # or privateExemple
 from handler import Handler
 
-AllPeopleSession: ExpiringDict = ExpiringDict(
+AllPeopleSession = ExpiringDict(
     max_len=200, max_age_seconds=21600)
 
 
@@ -18,7 +18,7 @@ def getHexString() -> str:
 
 
 def application(environ, start_response):
-    global nbSessionPeople, AllPeopleSession
+    global AllPeopleSession
     Post: dict[str, list[str]] = {}
     Get: dict[str, list[str]] = {}
     Cookies: dict[str, str] = {}
