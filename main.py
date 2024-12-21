@@ -7,10 +7,6 @@ from random import choice
 from private import *
 
 
-def set_cookie_header(name, value):
-    return ('Set-Cookie', '{}={}'.format(name, value))
-
-
 AllPeopleSession: ExpiringDict = ExpiringDict(
     max_len=200, max_age_seconds=21600)
 
