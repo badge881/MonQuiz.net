@@ -4,6 +4,7 @@ from html import escape
 from expiringdict import ExpiringDict
 from http.cookies import _unquote as unquote
 from random import choice
+from private import *
 
 
 def set_cookie_header(name, value):
