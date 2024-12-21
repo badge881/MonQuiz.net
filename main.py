@@ -29,7 +29,8 @@ def application(environ, start_response):
             request_body_size = 0
         request_body = environ['wsgi.input'].read(request_body_size)
         for k, v in parse_qs(request_body).items():
-            Post[escape(str(k, "utf-8"))] = [escape(str(i, "utf-8")) for i in v]
+            Post[escape(str(k, "utf-8"))] = [escape(str(i, "utf-8"))
+                                             for i in v]
 
     # GET dict
     if True:
@@ -53,14 +54,24 @@ def application(environ, start_response):
         if not AllPeopleSession.get(Cookies["session"], None):
             AllPeopleSession[Cookies["session"]] = {}
 
-    GET, POST, COOKIES, SESSION = Get, Post, Cookies, AllPeopleSession[Cookies["session"]]
+    status, response_headers, response_body = Handler(
+        Get, Post, Cookies, AllPeopleSession[Cookies["session"]])(RequestedPath)
 
     start_response(status, response_headers)
     return [response_body]
 
 
+class Handler:
+    def __init__(self, get: dict[str, list[str]], post: dict[str, list[str]], cookies: dict[str, str], session: dict[str, any]):
+        self.GET = get
+        self.POST = post
+        self.COOKIES = cookies
+        self.SESSION = session
+
+    def __call__(self, path: str):
+        pass
+
+
 if __name__ == "__main__":
-    Paths: dict[str] = {"/": main,
-                        "/create": createAGame, "/play": game, "/api": api}
     httpd = make_server('0.0.0.0', 80, application)
     httpd.serve_forever(0.1)
