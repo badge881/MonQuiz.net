@@ -1,18 +1,22 @@
 from private import *  # or privateExemple
 from pathlib import Path
+from db import db
 
 
 class Handler:
-    def __init__(self, get: dict[str, list[str]], post: dict[str, list[str]], cookies: dict[str, str], session: dict[str, any]):
+    def __init__(self):
+        self.Paths = {
+            '/': self.main,
+            '/create': self.create,
+            '/play': self.play,
+        }
+        self.db = db()
+
+    def __call__(self, path: str, get: dict[str, list[str]], post: dict[str, list[str]], cookies: dict[str, str], session: dict[str, any]):
         self.GET = get
         self.POST = post
         self.COOKIES = cookies
         self.SESSION = session
-        self.Paths = {
-            '/': self.main,
-        }
-
-    def __call__(self, path: str):
         if path in self.Paths:
             return self.Paths[path]()
         elif path.startswith('/static/'):
@@ -42,7 +46,48 @@ class Handler:
             return self.NotFound()
 
     def main(self):
-        return ('200 OK', [('Content-type', 'text/plain')], b'Hello World')
+        html = """<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonQuiz.net</title>
+    <link rel="icon" href="/static/images/logo.png">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+</head>
+
+<body lang="en">
+    <header>
+        <a href=" /" class="header-link">
+            <img id="logo" src="/static/images/logo.png" alt="MonQuiz.net" class="header-image">
+        </a>
+        <nav style="display: flex; gap:20px">
+            <a href="/create" class="header-link">
+                Cr&eacute;er un jeu
+            </a>
+            <a href="/play" class="header-link">
+                Rejoindre un jeu
+            </a>
+        </nav>
+    </header>
+    <main>
+        <h1>Bienvenue sur MonQuiz.net</h1>
+        <p>Cr&eacute;ez et jouez &agrave; des quiz en ligne gratuitement.</p>
+        <p>Vous pouvez <a href="/create">cr&eacute;er</a> un quiz ou en <a href="/play">rejoindre</a> un.</p>
+        <p>Les r&eacute;sultats sont enregistr&eacute;s et peuvent &ecirc;tre consult&eacute;s &agrave; tout moment.</p>
+        <p>Entre amis, en famille ou a l'&eacute;cole, amusez-vous avec MonQuiz.net.</p>
+    </main>
+</body>
+
+</html>"""
+        return ('200 OK', [('Content-type', 'text/html')], bytes(html, 'utf-8'))
+
+    def create(self):
+        return ('200 OK', [('Content-type', 'text/html')], bytes('Not created return on <a href="/">home</a>', 'utf-8'))
+
+    def play(self):
+        return ('200 OK', [('Content-type', 'text/html')], bytes('Not created return on <a href="/">home</a>', 'utf-8'))
 
     def NotFound(self):
-        return ('404 Not Found', [('Content-type', 'text/plain')], b'Not Found')
+        return ('404 Not Found', [('Content-type', 'text/html')], b'Not Found return on <a href="/">home</a>')
