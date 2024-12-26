@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #e9daff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #1F0941;
+}
+
+.header-image {
+    max-width: 100px;
+    height: auto;
+}
+
+#logo {
+    max-width: 200px;
+}
+
+a.header-link {
+    display: block;
+    text-decoration: none;
+    color: #fffaf0;
+    text-align: center;
+}

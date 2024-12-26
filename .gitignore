@@ -1,1 +1,11 @@
+# my env variables (you can see an example of the content at /privateExemple.py)
 **/private.py
+
+# No my db files
+**/*.db
+
+# python
+**/__pycache__
+
+# vscode
+**/.vscode

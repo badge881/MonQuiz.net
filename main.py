@@ -1,4 +1,4 @@
-from wsgiref.simple_server import make_server
+from gevent import pywsgi
 from urllib.parse import parse_qs
 from html import escape
 from expiringdict import ExpiringDict
@@ -55,17 +55,18 @@ def application(environ, start_response):
     if True:
         if not Cookies.get("session"):
             Cookies['session'] = getHexString()
-            nbSessionPeople += 1
         if not AllPeopleSession.get(Cookies["session"], None):
             AllPeopleSession[Cookies["session"]] = {}
 
-    status, response_headers, response_body = Handler(
-        Get, Post, Cookies, AllPeopleSession[Cookies["session"]])(RequestedPath)
+    status, response_headers, response_body = Handler()(
+        RequestedPath, Get, Post, Cookies, AllPeopleSession[Cookies["session"]])
 
     start_response(status, response_headers)
     return [response_body]
 
 
 if __name__ == "__main__":
-    httpd = make_server('0.0.0.0', 80, application)
-    httpd.serve_forever(0.1)
+    print('Serving on http://0.0.0.0')
+    server = pywsgi.WSGIServer(
+        ('0.0.0.0', 80), application)
+    server.serve_forever()
