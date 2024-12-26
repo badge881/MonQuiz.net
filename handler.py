@@ -4,15 +4,15 @@ from db import db
 
 
 class Handler:
-    def __init__(self):
+    def __init__(self) -> None:
         self.Paths = {
-            '/': self.main,
-            '/create': self.create,
-            '/play': self.play,
+            '/': self._main,
+            '/create': self._create,
+            '/play': self._play,
         }
         self.db = db()
 
-    def __call__(self, path: str, get: dict[str, list[str]], post: dict[str, list[str]], cookies: dict[str, str], session: dict[str, any]):
+    def __call__(self, path: str, get: dict[str, list[str]], post: dict[str, list[str]], cookies: dict[str, str], session: dict[str, any]) -> tuple[str, list[tuple[str, str]], bytes]:
         self.GET = get
         self.POST = post
         self.COOKIES = cookies
@@ -43,9 +43,9 @@ class Handler:
                 case _:
                     return ('200 OK', [('Content-type', 'text/plain')], path.read_bytes())
         else:
-            return self.NotFound()
+            return self._NotFound()
 
-    def main(self):
+    def _main(self) -> tuple[str, list[tuple[str, str]], bytes]:
         html = """<!DOCTYPE html>
 <html>
 
@@ -83,11 +83,11 @@ class Handler:
 </html>"""
         return ('200 OK', [('Content-type', 'text/html')], bytes(html, 'utf-8'))
 
-    def create(self):
+    def _create(self) -> tuple[str, list[tuple[str, str]], bytes]:
         return ('200 OK', [('Content-type', 'text/html')], bytes('Not created return on <a href="/">home</a>', 'utf-8'))
 
-    def play(self):
+    def _play(self) -> tuple[str, list[tuple[str, str]], bytes]:
         return ('200 OK', [('Content-type', 'text/html')], bytes('Not created return on <a href="/">home</a>', 'utf-8'))
 
-    def NotFound(self):
+    def _NotFound(self) -> tuple[str, list[tuple[str, str]], bytes]:
         return ('404 Not Found', [('Content-type', 'text/html')], b'Not Found return on <a href="/">home</a>')
