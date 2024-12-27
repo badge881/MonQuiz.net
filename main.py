@@ -3,18 +3,12 @@ from urllib.parse import parse_qs
 from html import escape
 from expiringdict import ExpiringDict
 from http.cookies import _unquote as unquote
-from random import choice
+from globalFunctions import *
 from private import *  # or privateExemple
 from handler import Handler
 
 AllPeopleSession = ExpiringDict(
     max_len=200, max_age_seconds=21600)
-
-
-def getHexString() -> str:
-    while True:
-        if not AllPeopleSession.get(i := ''.join([choice('0123456789abcdef') for _ in range(32)])):
-            return i
 
 
 def application(environ, start_response):
@@ -54,19 +48,52 @@ def application(environ, start_response):
     # SESSION dict
     if True:
         if not Cookies.get("session"):
-            Cookies['session'] = getHexString()
+            CookiesSession = getHexString()
+            while CookiesSession in AllPeopleSession.keys():  # not 2 times same key session
+                CookiesSession = getHexString()
+            Cookies["session"] = CookiesSession
         if not AllPeopleSession.get(Cookies["session"], None):
-            AllPeopleSession[Cookies["session"]] = {}
+            AllPeopleSession[Cookies["session"]] = [{}]
 
     status, response_headers, response_body = Handler()(
         RequestedPath, Get, Post, Cookies, AllPeopleSession[Cookies["session"]])
+    try:
+        response_headers.append(("Set-Cookie", f"session={CookiesSession}"))
+    except:
+        pass
 
     start_response(status, response_headers)
     return [response_body]
 
 
 if __name__ == "__main__":
+    """database has :
+    Table 'users' (
+        id,
+        email,
+        password,
+    )
+    
+    Table 'quizzes' (
+        id,
+        title,
+        description,
+        authorId,
+        created_at
+    )
+    
+    Table 'questions' (
+        id,
+        quizId,
+        questionText
+    )
+    
+    Table 'answers' (
+        id,
+        questionId,
+        answerText,
+        isCorrect
+    )"""
     print('Serving on http://0.0.0.0')
-    server = pywsgi.WSGIServer(
-        ('0.0.0.0', 80), application)
+    server = pywsgi.WSGIServer(('0.0.0.0', 80), application)
     server.serve_forever()
